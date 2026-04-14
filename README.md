@@ -97,12 +97,4 @@ ml/ → Training scripts
 ```bash
 cd backend
 python app.py
-![Screenshot 2026-04-14 151036](https://github.com/user-attachments/assets/eb2ecf53-213f-4100-bfa9-3ff41957f364)
-
-
-<img width="1497" height="801" alt="Screenshot 2026-04-14 151036" src="https://github.com/user-attachments/assets/7cf1b45d-64a4-4443-ab1b-d76f6d0c7e40" />
-![Demo Screenshot](https://github.com/user-attachments/assets/7cf1b45d-64a4-4443-ab1b-d76f6d0c7e40)
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/7cf1b45d-64a4-4443-ab1b-d76f6d0c7e40" width="800"/>
-</p>
+![ezgif com-animated-gif-maker](https://github.com/user-attachments/assets/39b3c3d8-80cd-4f80-854d-77b65e01f0a8)
