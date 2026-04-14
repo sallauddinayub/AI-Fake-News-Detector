@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Fake News Detector</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #000000);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            color: white;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            width: 600px;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeIn 1s ease, float 4s ease-in-out infinite;
+            transition: 0.3s;
+        }
+
+        .container:hover {
+            transform: translateY(-5px) scale(1.01);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 14px;
+        }
+
+        textarea:focus {
+            box-shadow: 0 0 10px #00c6ff;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+        }
+
+        button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.9);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .loader {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .loader span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        .loader span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loader span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            to {
+                transform: translateY(-10px);
+            }
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .result.real {
+            color: #00ffae;
+            animation: glowGreen 1.5s infinite alternate;
+        }
+
+        .result.fake {
+            color: #ff4d4d;
+            animation: glowRed 1.5s infinite alternate;
+        }
+
+        @keyframes glowGreen {
+            from {
+                text-shadow: 0 0 10px #00ffae;
+            }
+
+            to {
+                text-shadow: 0 0 20px #00ffae;
+            }
+        }
+
+        @keyframes glowRed {
+            from {
+                text-shadow: 0 0 10px #ff4d4d;
+            }
+
+            to {
+                text-shadow: 0 0 20px #ff4d4d;
+            }
+        }
+
+        .source {
+            margin-top: 10px;
+        }
+
+        .badge {
+            background: linear-gradient(45deg, #111, #333);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>🤖 AI Fake News Detector</h1>
+
+        <textarea id="inputText" placeholder="Paste news text here..."></textarea>
+
+        <button onclick="analyzeText()">Analyze</button>
+
+        <div class="loader" id="loader">
+            <span></span><span></span><span></span>
+        </div>
+
+        <div class="result" id="result"></div>
+        <div class="source" id="source"></div>
+    </div>
+
+    <script>
+        async function analyzeText() {
+            const text = document.getElementById("inputText").value;
+            const resultDiv = document.getElementById("result");
+            const sourceDiv = document.getElementById("source");
+            const loader = document.getElementById("loader");
+
+            if (!text.trim()) {
+                alert("Please enter some text!");
+                return;
+            }
+
+            resultDiv.innerHTML = "";
+            sourceDiv.innerHTML = "";
+            loader.style.display = "block";
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/predict_text", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+
+                loader.style.display = "none";
+
+                let displayText = `${data.prediction} (${data.confidence}%)`;
+                resultDiv.innerHTML = "";
+                let i = 0;
+
+                function typeEffect() {
+                    if (i < displayText.length) {
+                        resultDiv.innerHTML += displayText.charAt(i);
+                        i++;
+                        setTimeout(typeEffect, 30);
+                    }
+                }
+                typeEffect();
+
+                resultDiv.className = "result " + (data.prediction === "REAL" ? "real" : "fake");
+
+                sourceDiv.innerHTML = `<span class="badge">🧠 ${data.source}</span>`;
+
+            } catch (error) {
+                loader.style.display = "none";
+                resultDiv.innerHTML = "Server Error";
+                resultDiv.className = "result fake";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
